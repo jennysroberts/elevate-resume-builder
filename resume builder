@@ -1,0 +1,21 @@
+cd ~/resume-builder-app
+
+# Set your name/email if you haven't already
+git config --global user.name "jennysroberts"
+git config --global user.email "jennysroberts@outlook.com"
+
+# Connect to your new GitHub repo
+git remote add origin https://github.com/YOUR_USERNAME/elevate-resume-builder.git
+git push -u origin main
+
+elevate-resume-builder/
+├── .github/
+│   └── workflows/
+│       └── deploy.yml      ← auto-deploys to GitHub Pages on every push
+├── index.html              ← the full app
+├── guide.html              ← step-by-step user guide
+├── package.json            ← project metadata + npm start/dev scripts
+├── CONTRIBUTING.md         ← contributor guidelines + code style
+├── README.md               ← full project docs
+├── .gitignore              ← macOS + editor exclusions
+└── LICENSE                 ← MIT
