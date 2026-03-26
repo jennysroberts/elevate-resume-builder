@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Elevate — AI Resume Builder</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #EDF2FB;
+      --bg-card: #ffffff;
+      --s1:      #E2EAFC;
+      --s2:      #D7E3FC;
+      --s3:      #CCDBFD;
+      --a1:      #C1D3FE;
+      --a2:      #B6CCFE;
+      --accent:  #ABC4FF;
+      --ink:     #1E1B4B;
+      --body:    #374151;
+      --muted:   #6B7280;
+      --faint:   #9CA3AF;
+      --font: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+      --sh:  0 1px 4px rgba(171,196,255,.22), 0 0 0 1px rgba(171,196,255,.10);
+      --shm: 0 4px 20px rgba(171,196,255,.30);
+      --shl: 0 8px 40px rgba(171,196,255,.38);
+    }
+
+    html, body { height: 100%; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--body);
+      font-size: 15px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    #root { min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* ── HEADER ── */
+    .hdr {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--s3);
+      padding: 0 32px;
+      height: 62px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky; top: 0; z-index: 200;
+      box-shadow: var(--sh);
+    }
+    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo-mark {
+      width: 34px; height: 34px;
+      background: linear-gradient(135deg, var(--a2), var(--accent));
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 17px; color: var(--ink);
+    }
+    .logo-name { font-size: 19px; font-weight: 800; color: var(--ink); letter-spacing: -.4px; }
+    .logo-name em { font-style: normal; color: var(--accent); }
+    .steps-bar { display: flex; align-items: center; gap: 4px; }
+    .step-pip {
+      width: 26px; height: 26px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700;
+      transition: all .2s;
+    }
+    .step-pip.done    { background: var(--s3); color: var(--muted); }
+    .step-pip.active  { background: var(--accent); color: var(--ink); box-shadow: 0 0 0 3px rgba(171,196,255,.35); }
+    .step-pip.pending { background: var(--s1); color: var(--faint); }
+    .step-line { width: 20px; height: 2px; border-radius: 1px; background: var(--s3); }
+    .step-line.done { background: var(--a1); }
+    .hdr-back {
+      display: flex; align-items: center; gap: 6px;
+      background: none; border: none; cursor: pointer;
+      color: var(--muted); font-family: var(--font); font-size: 13px; font-weight: 600;
+      padding: 7px 12px; border-radius: 8px; transition: all .15s;
+    }
+    .hdr-back:hover { background: var(--s1); color: var(--ink); }
+
+    /* ── LAYOUT ── */
+    .main { flex: 1; padding: 36px 28px; max-width: 1060px; margin: 0 auto; width: 100%; }
+
+    /* ── TYPOGRAPHY ── */
+    .page-h { font-size: 30px; font-weight: 800; color: var(--ink); letter-spacing: -.6px; margin-bottom: 6px; }
+    .page-sub { font-size: 15px; color: var(--muted); margin-bottom: 30px; line-height: 1.5; }
+    .sec-label {
+      font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--ink); margin-bottom: 12px;
+    }
+
+    /* ── CARDS ── */
+    .card { background: var(--bg-card); border-radius: 16px; box-shadow: var(--sh); padding: 28px; border: 1px solid var(--s3); }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 11px 26px; border-radius: 12px;
+      font-family: var(--font); font-size: 14px; font-weight: 700;
+      cursor: pointer; border: none; outline: none; transition: all .15s;
+    }
+    .btn-p  { background: linear-gradient(135deg, var(--a2), var(--accent)); color: var(--ink); }
+    .btn-p:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(171,196,255,.55); }
+    .btn-p:active { transform: translateY(0); }
+    .btn-s  { background: var(--s1); color: var(--ink); }
+    .btn-s:hover { background: var(--s2); }
+    .btn-g  { background: transparent; color: var(--muted); border: 1.5px solid var(--s3); }
+    .btn-g:hover { background: var(--s1); color: var(--ink); }
+    .btn-lg { padding: 14px 36px; font-size: 15px; border-radius: 14px; }
+    .btn-sm { padding: 7px 16px; font-size: 12px; border-radius: 8px; }
+    .btn:disabled { opacity: .45; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+
+    /* ── FORM FIELDS ── */
+    .field { margin-bottom: 18px; }
+    .lbl { display: block; font-size: 12px; font-weight: 700; color: var(--ink); margin-bottom: 5px; letter-spacing: .01em; }
+    .inp, .sel, .txa {
+      width: 100%; padding: 10px 14px;
+      background: var(--bg); border: 1.5px solid var(--s3); border-radius: 10px;
+      font-family: var(--font); font-size: 14px; color: var(--body);
+      outline: none; transition: border-color .15s, box-shadow .15s;
+    }
+    .inp:focus, .sel:focus, .txa:focus {
+      border-color: var(--accent); box-shadow: 0 0 0 3px rgba(171,196,255,.28);
+    }
+    .inp::placeholder, .txa::placeholder { color: var(--faint); }
+    .txa { resize: vertical; min-height: 110px; line-height: 1.55; }
+    .sel { appearance: none; cursor: pointer; }
+    .hint { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+    /* ── GRID ── */
+    .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+    /* ── TAGS/CHIPS ── */
+    .chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 5px 13px; background: var(--a1); color: var(--ink);
+      border-radius: 100px; font-size: 12px; font-weight: 600;
+      cursor: pointer; border: 2px solid transparent; transition: all .15s;
+      user-select: none;
+    }
+    .chip.on { background: var(--accent); border-color: var(--a2); }
+    .chip:hover:not(.on) { background: var(--a2); }
+    .chip-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    /* ── WELCOME ── */
+    .hero {
+      text-align: center;
+      padding: 64px 20px 52px;
+    }
+    .hero-pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--s1); color: var(--ink);
+      border-radius: 100px; padding: 6px 18px;
+      font-size: 13px; font-weight: 600; margin-bottom: 26px;
+      border: 1px solid var(--s3);
+    }
+    .hero-h {
+      font-size: 56px; font-weight: 800; color: var(--ink);
+      letter-spacing: -2.5px; line-height: 1.07; margin-bottom: 20px;
+    }
+    .hero-h .hl {
+      background: linear-gradient(135deg, #818cf8, var(--accent));
+      -webkit-background-clip: text; background-clip: text;
+      color: transparent;
+    }
+    .hero-sub { font-size: 18px; color: var(--muted); max-width: 500px; margin: 0 auto 38px; line-height: 1.7; }
+    .feature-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-top: 56px; }
+    .feat-card {
+      background: var(--bg-card); border-radius: 14px; padding: 22px 18px;
+      border: 1px solid var(--s3); text-align: left;
+      transition: all .2s;
+    }
+    .feat-card:hover { box-shadow: var(--shm); transform: translateY(-2px); }
+    .feat-ico {
+      width: 42px; height: 42px;
+      background: linear-gradient(135deg, var(--s2), var(--s3));
+      border-radius: 11px; display: flex; align-items: center; justify-content: center;
+      font-size: 20px; margin-bottom: 13px;
+    }
+    .feat-t { font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+    .feat-d { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+    /* ── IMPORT / TABS ── */
+    .tab-bar {
+      display: flex; background: var(--s1); border-radius: 11px;
+      padding: 4px; gap: 2px; margin-bottom: 28px;
+    }
+    .tab-btn {
+      flex: 1; padding: 9px 12px; border-radius: 9px;
+      font-family: var(--font); font-size: 13px; font-weight: 600;
+      cursor: pointer; border: none; background: transparent;
+      color: var(--muted); transition: all .15s;
+    }
+    .tab-btn.on { background: var(--bg-card); color: var(--ink); box-shadow: var(--sh); }
+    .exp-block {
+      background: var(--bg); border: 1.5px solid var(--s3);
+      border-radius: 12px; padding: 20px; margin-bottom: 12px;
+    }
+    .exp-row { display: flex; justify-content: space-between; align-items: flex-start; }
+    .bullet-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .bullet-dot { width: 5px; height: 5px; background: var(--accent); border-radius: 50%; flex-shrink: 0; margin-top: 1px; }
+
+    /* ── PROMPT PROGRESS ── */
+    .prompt-prog { display: flex; align-items: center; gap: 6px; margin-bottom: 26px; }
+    .pp-num {
+      width: 30px; height: 30px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700;
+    }
+    .pp-num.active  { background: var(--accent); color: var(--ink); }
+    .pp-num.done    { background: var(--s3); color: var(--muted); }
+    .pp-num.pending { background: var(--s1); color: var(--faint); }
+    .pp-lbl { font-size: 12px; font-weight: 600; color: var(--muted); }
+    .pp-lbl.active { color: var(--ink); }
+    .pp-sep { width: 32px; height: 2px; background: var(--s3); border-radius: 1px; }
+    .pp-sep.done { background: var(--a1); }
+
+    /* ── RESEARCH PROMPT ── */
+    .kw-box { background: var(--bg); border-radius: 11px; padding: 18px; border: 1px solid var(--s3); margin-bottom: 18px; }
+    .sf-row { display: flex; align-items: flex-start; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--s1); }
+    .sf-row:last-child { border-bottom: none; }
+    .sf-ico { color: var(--accent); font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+
+    /* ── TEMPLATE CARDS ── */
+    .tpl-card {
+      border: 2px solid var(--s3); border-radius: 14px;
+      padding: 20px; cursor: pointer; transition: all .15s;
+    }
+    .tpl-card:hover { border-color: var(--a2); background: var(--bg); }
+    .tpl-card.on {
+      border-color: var(--accent);
+      background: linear-gradient(135deg,rgba(182,204,254,.12),rgba(171,196,255,.18));
+    }
+    .tpl-ico { font-size: 30px; margin-bottom: 10px; }
+    .tpl-name { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+    .tpl-desc { font-size: 12px; color: var(--muted); line-height: 1.4; }
+
+    /* ── DISCOVERY ── */
+    .disc-card { background: var(--bg-card); border: 1px solid var(--s3); border-radius: 16px; padding: 32px; text-align: center; }
+    .disc-q { font-size: 19px; font-weight: 700; color: var(--ink); line-height: 1.5; margin-bottom: 26px; }
+    .disc-btns { display: flex; gap: 12px; justify-content: center; margin-bottom: 16px; }
+    .disc-yes { background: linear-gradient(135deg,var(--a2),var(--accent)); color: var(--ink); padding: 11px 28px; border-radius: 11px; font-weight: 700; cursor: pointer; border: none; font-family: var(--font); font-size: 14px; }
+    .disc-no  { background: var(--s1); color: var(--muted); padding: 11px 28px; border-radius: 11px; font-weight: 700; cursor: pointer; border: none; font-family: var(--font); font-size: 14px; }
+    .disc-more { background: var(--bg-card); color: var(--ink); padding: 11px 28px; border-radius: 11px; font-weight: 700; cursor: pointer; border: 1.5px solid var(--s3); font-family: var(--font); font-size: 14px; }
+    .disc-progress { display: flex; gap: 5px; justify-content: center; margin-bottom: 26px; }
+    .disc-pip { width: 6px; height: 6px; border-radius: 50%; background: var(--s3); transition: background .2s; }
+    .disc-pip.on { background: var(--accent); }
+    .captured-list { margin-top: 20px; }
+    .cap-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      background: var(--bg); border-radius: 10px; padding: 12px 14px;
+      margin-bottom: 8px; border: 1px solid var(--s3); text-align: left;
+    }
+    .cap-ico { color: var(--accent); flex-shrink: 0; margin-top: 1px; }
+    .cap-text { font-size: 13px; color: var(--ink); line-height: 1.4; }
+
+    /* ── BUILDER ── */
+    .builder-wrap { display: grid; grid-template-columns: 1fr 1.25fr; gap: 26px; }
+    .editor-col { display: flex; flex-direction: column; gap: 18px; }
+    .preview-col { position: sticky; top: 74px; max-height: calc(100vh - 100px); overflow-y: auto; }
+    .sec-tabs { display: flex; gap: 2px; background: var(--s1); border-radius: 11px; padding: 4px; margin-bottom: 18px; }
+    .stab {
+      flex: 1; padding: 8px 10px; border-radius: 9px;
+      font-family: var(--font); font-size: 12px; font-weight: 700;
+      cursor: pointer; border: none; background: transparent;
+      color: var(--muted); transition: all .15s;
+    }
+    .stab.on { background: var(--bg-card); color: var(--ink); box-shadow: var(--sh); }
+
+    /* ── ATS ── */
+    .ats-widget {
+      background: var(--s1); border-radius: 14px; padding: 18px 20px;
+      display: flex; align-items: center; gap: 18px;
+      border: 1px solid var(--s3); margin-bottom: 18px;
+    }
+    .ats-bars { flex: 1; display: flex; flex-direction: column; gap: 7px; }
+    .ats-bar-row { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--muted); }
+    .ats-trk { flex: 1; height: 4px; background: var(--s3); border-radius: 2px; overflow: hidden; }
+    .ats-fill { height: 100%; background: linear-gradient(to right, var(--a2), var(--accent)); border-radius: 2px; transition: width 1s ease; }
+    .ats-bar-label { width: 80px; font-weight: 600; }
+
+    /* ── RESUME DOCUMENT ── */
+    .resume-doc {
+      background: white; border-radius: 12px;
+      box-shadow: var(--shm); padding: 38px 42px;
+      font-family: 'Manrope', Georgia, serif;
+      border: 1px solid var(--s3);
+    }
+    .r-name { font-size: 24px; font-weight: 800; color: #12113a; letter-spacing: -.4px; margin-bottom: 3px; }
+    .r-contact { font-size: 11px; color: #555; display: flex; flex-wrap: wrap; gap: 3px 12px; margin-bottom: 14px; }
+    .r-divider { height: 2px; background: linear-gradient(to right, var(--accent), var(--a1)); border-radius: 2px; margin-bottom: 14px; }
+    .r-stitle { font-size: 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: #3730A3; margin-bottom: 7px; }
+    .r-summary { font-size: 12px; line-height: 1.72; color: #374151; margin-bottom: 14px; }
+    .r-exp-title { font-size: 13px; font-weight: 700; color: #12113a; }
+    .r-exp-meta { font-size: 11px; color: #555; margin-bottom: 5px; }
+    .r-bullets { list-style: none; padding: 0; margin-bottom: 13px; }
+    .r-bullets li { font-size: 11.5px; color: #374151; padding: 2px 0 2px 14px; position: relative; line-height: 1.55; }
+    .r-bullets li::before { content: '•'; position: absolute; left: 0; color: var(--accent); font-weight: 800; }
+    .r-skills-row { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 13px; }
+    .r-skill-group { font-size: 11px; line-height: 1.5; }
+    .r-skill-group strong { color: #12113a; font-weight: 700; }
+    .r-edu { margin-bottom: 8px; }
+    .r-edu-deg { font-size: 12px; font-weight: 700; color: #12113a; }
+    .r-edu-info { font-size: 11px; color: #555; }
+    .export-row { display: flex; gap: 10px; margin-top: 14px; }
+
+    /* ── JOB SEARCH ── */
+    .jb-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 36px; }
+    .jb-card {
+      background: var(--bg-card); border: 1px solid var(--s3);
+      border-radius: 14px; padding: 20px;
+      display: flex; flex-direction: column; gap: 10px;
+      transition: all .18s;
+    }
+    .jb-card:hover { box-shadow: var(--shm); border-color: var(--a2); transform: translateY(-2px); }
+    .jb-top { display: flex; align-items: center; gap: 12px; }
+    .jb-logo { width: 42px; height: 42px; border-radius: 11px; background: var(--s2); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+    .jb-name { font-size: 15px; font-weight: 700; color: var(--ink); }
+    .jb-desc { font-size: 12px; color: var(--muted); }
+    .cert-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .cert-card {
+      background: var(--bg-card); border: 1px solid var(--s3);
+      border-radius: 14px; padding: 20px; transition: all .18s;
+    }
+    .cert-card:hover { box-shadow: var(--shm); border-color: var(--a2); }
+    .cert-hdr { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 8px; }
+    .cert-name { font-size: 13px; font-weight: 700; color: var(--ink); line-height: 1.3; }
+    .cert-boost { font-size: 11px; font-weight: 700; background: linear-gradient(135deg,var(--s2),var(--s3)); color: var(--ink); padding: 3px 10px; border-radius: 100px; white-space: nowrap; }
+    .cert-prov { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+    .cert-meta { display: flex; gap: 12px; font-size: 11px; color: var(--muted); margin-bottom: 12px; flex-wrap: wrap; }
+
+    /* ── MISC ── */
+    .divider { height: 1px; background: var(--s3); margin: 22px 0; }
+    .row { display: flex; align-items: center; gap: 12px; }
+    .row-between { display: flex; align-items: center; justify-content: space-between; }
+    .mb2 { margin-bottom: 8px; } .mb3 { margin-bottom: 12px; } .mb4 { margin-bottom: 16px; } .mb6 { margin-bottom: 24px; }
+    .mt2 { margin-top: 8px; } .mt4 { margin-top: 16px; } .mt6 { margin-top: 24px; }
+    .text-muted { color: var(--muted); font-size: 13px; }
+    .text-sm { font-size: 13px; }
+
+    @keyframes fadein { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+    .fadein { animation: fadein .3s ease both; }
+
+    /* ── PRINT ── */
+    @media print {
+      .hdr, .ats-widget, .sec-tabs, .editor-col, .export-row, .btn, .page-h, .page-sub, .prompt-prog { display: none !important; }
+      .builder-wrap { grid-template-columns: 1fr; }
+      .preview-col { position: static; max-height: none; overflow: visible; }
+      .resume-doc { box-shadow: none; border: none; padding: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    /* ════════════════════════════════════════════
+       CONSTANTS
+    ════════════════════════════════════════════ */
+    const AU_CITIES = [
+      'Sydney, NSW','Melbourne, VIC','Brisbane, QLD','Perth, WA',
+      'Adelaide, SA','Canberra, ACT','Gold Coast, QLD','Hobart, TAS','Darwin, NT'
+    ];
+    const INDUSTRIES = [
+      'Technology','Finance & Banking','Healthcare','Education',
+      'Marketing & Communications','Engineering','Retail & Commerce',
+      'Government','Non-Profit','Legal','Consulting','Manufacturing',
+      'Media & Entertainment','Real Estate','Other'
+    ];
+
+    const JOB_BOARDS = [
+      { name:'SEEK', emoji:'🔍', desc:"Australia's #1 job site",
+        url:(t,l)=>`https://www.seek.com.au/${encodeURIComponent(t.replace(/ /g,'-'))}-jobs/in-${encodeURIComponent(l.replace(/,\s*/g,'-').replace(/ /g,'-'))}` },
+      { name:'Indeed Australia', emoji:'📋', desc:'Millions of jobs worldwide',
+        url:(t,l)=>`https://au.indeed.com/jobs?q=${encodeURIComponent(t)}&l=${encodeURIComponent(l)}` },
+      { name:'LinkedIn Jobs', emoji:'💼', desc:'Find jobs in your network',
+        url:(t,l)=>`https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(t)}&location=${encodeURIComponent(l)}` },
+      { name:'Jora', emoji:'🎯', desc:'Smart Australian job search',
+        url:(t,l)=>`https://au.jora.com/jobs?q=${encodeURIComponent(t)}&l=${encodeURIComponent(l)}` },
+      { name:'CareerOne', emoji:'⭐', desc:'Career advice + top jobs',
+        url:(t,l)=>`https://www.careerone.com.au/jobs/?q=${encodeURIComponent(t)}&where=${encodeURIComponent(l)}` },
+      { name:'Adzuna', emoji:'📌', desc:'Smart salary & job data',
+        url:(t,l)=>`https://www.adzuna.com.au/jobs/search?q=${encodeURIComponent(t)}&loc=${encodeURIComponent(l)}` },
+    ];
+
+    const CERT_DB = [
+      { name:'AWS Certified Solutions Architect',provider:'Amazon Web Services',link:'https://aws.amazon.com/certification/',dur:'2–3 months',cost:'A$175',boost:'+25% income',kw:['aws','cloud','devops','infrastructure','software','engineer','developer','architect','technology','it'] },
+      { name:'Google Cloud Professional',provider:'Google Cloud',link:'https://cloud.google.com/certification',dur:'3 months',cost:'A$330',boost:'+22%',kw:['google cloud','gcp','cloud','engineer','data','architect','tech'] },
+      { name:'Microsoft Azure Fundamentals (AZ-900)',provider:'Microsoft Learn',link:'https://learn.microsoft.com/certifications/azure-fundamentals/',dur:'1 month',cost:'A$175',boost:'+18%',kw:['azure','microsoft','cloud','engineer','developer','it'] },
+      { name:'Project Management Professional (PMP)',provider:'PMI',link:'https://www.pmi.org/certifications/project-management-pmp',dur:'3–6 months',cost:'A$720',boost:'+30%',kw:['project','manager','programme','delivery','lead','coordinator','agile','scrum','pmo'] },
+      { name:'Certified ScrumMaster (CSM)',provider:'Scrum Alliance',link:'https://www.scrumalliance.org/get-certified/scrum-master-track/certified-scrummaster',dur:'2 days',cost:'A$1,200',boost:'+15%',kw:['scrum','agile','sprint','product','delivery','team','lead','project'] },
+      { name:'CompTIA Security+',provider:'CompTIA',link:'https://www.comptia.org/certifications/security',dur:'2 months',cost:'A$440',boost:'+20%',kw:['security','cybersecurity','network','analyst','it','infosec','compliance'] },
+      { name:'Google Data Analytics Certificate',provider:'Coursera / Google',link:'https://www.coursera.org/professional-certificates/google-data-analytics',dur:'6 months',cost:'A$540',boost:'+28%',kw:['data','analytics','analysis','sql','python','tableau','business intelligence','bi','reporting'] },
+      { name:'Tableau Desktop Specialist',provider:'Tableau',link:'https://www.tableau.com/learn/certification/desktop-specialist',dur:'1 month',cost:'A$275',boost:'+18%',kw:['tableau','data','visualisation','analytics','bi','reporting','dashboard'] },
+      { name:'Google Analytics Certification',provider:'Google Skillshop',link:'https://skillshop.google.com/google-analytics',dur:'1 week',cost:'Free',boost:'+12%',kw:['marketing','digital','seo','analytics','ecommerce','content','google','social'] },
+      { name:'HubSpot Content Marketing',provider:'HubSpot Academy',link:'https://academy.hubspot.com/courses/content-marketing',dur:'2 weeks',cost:'Free',boost:'+10%',kw:['content','marketing','inbound','hubspot','copywriting','communications','brand'] },
+      { name:'Meta Blueprint Certification',provider:'Meta',link:'https://www.facebook.com/business/learn',dur:'2 weeks',cost:'Free–A$175',boost:'+12%',kw:['facebook','social media','instagram','paid','advertising','digital marketing','marketing'] },
+      { name:'CPA Australia',provider:'CPA Australia',link:'https://www.cpaaustralia.com.au/',dur:'3 years',cost:'A$3,500/yr',boost:'+35%',kw:['accounting','finance','cpa','tax','audit','financial','controller','accountant'] },
+      { name:'Chartered Financial Analyst (CFA)',provider:'CFA Institute',link:'https://www.cfainstitute.org/en/programs/cfa',dur:'4+ years',cost:'A$1,200/level',boost:'+40%',kw:['finance','investment','banking','portfolio','equity','analyst','financial'] },
+      { name:'ITIL 4 Foundation',provider:'Axelos',link:'https://www.axelos.com/certifications/itil-service-management/itil-4-foundation',dur:'1 month',cost:'A$440',boost:'+15%',kw:['itil','itsm','service management','it support','helpdesk','operations','technology'] },
+      { name:'Salesforce Administrator',provider:'Salesforce Trailhead',link:'https://trailhead.salesforce.com/credentials/administrator',dur:'2 months',cost:'A$275',boost:'+20%',kw:['salesforce','crm','sales','admin','business analyst','cloud','operations'] },
+      { name:'Diploma of Business (BSB50120)',provider:'TAFE NSW / RTOs',link:'https://www.tafensw.edu.au/',dur:'12–18 months',cost:'A$2,000–5,000',boost:'+15%',kw:['business','management','operations','administration','coordinator','office','executive'] },
+    ];
+
+    /* ════════════════════════════════════════════
+       UTILITIES
+    ════════════════════════════════════════════ */
+    function extractKeywords(text) {
+      if (!text) return [];
+      const stop = new Set(['and','the','of','in','to','a','for','with','is','are','will','be','you','we','our','your','this','that','have','has','from','by','at','or','on','as','an','their','they','it','its','who','what','when','where','how','all','can','do','if','but','not','one','two','new','also','into','than','other','some','these','those','would','should','could','must','need','may','more','any','was','were','been','being','had','did','does','each','about','which','them','then','after','before','use','used','using','well','often','work','working','able','both','next','provide','required','strong','experience','years','role','team','skills','business','level','good','great','excellent','preferred','minimum','knowledge','understanding','able','strong','highly','demonstrated','proven','solid']);
+      const phrases = ['project management','data analysis','machine learning','artificial intelligence','product management','stakeholder management','agile methodology','software development','customer success','business development','digital marketing','content strategy','supply chain','financial analysis','risk management','business intelligence','data science','cloud computing','user experience'];
+      const freq = {};
+      phrases.forEach(p => { if (text.toLowerCase().includes(p)) freq[p] = (freq[p]||0)+4; });
+      const words = text.match(/\b[a-zA-Z][a-zA-Z+#\-.\/]{2,}\b/g)||[];
+      words.forEach(w => { const lw=w.toLowerCase(); if (!stop.has(lw)) freq[lw]=(freq[lw]||0)+1; });
+      return Object.entries(freq).filter(([,c])=>c>=1).sort((a,b)=>b[1]-a[1]).slice(0,24).map(([w])=>w);
+    }
+
+    function calcATS(resume, kws) {
+      if (!resume) return 0;
+      const txt = JSON.stringify(resume).toLowerCase();
+      const kwScore = kws.length ? (kws.filter(k=>txt.includes(k.toLowerCase())).length/kws.length)*42 : 28;
+      const verbs = ['achieved','delivered','led','managed','developed','implemented','improved','increased','reduced','created','launched','built','designed','established','streamlined','collaborated','facilitated','oversaw','coordinated','executed','spearheaded','optimised','drove','grew','generated'];
+      const vScore = Math.min(22, verbs.filter(v=>txt.includes(v)).length*2);
+      const hasNums = /\d+%|\$\d+|\d+\s*(million|thousand|k\b|m\b)|\d+\s*(people|team members|clients|accounts|projects)/i.test(txt);
+      const mScore = hasNums ? 22 : 8;
+      let sScore = 0;
+      if (resume.summary) sScore+=5;
+      if (resume.experience&&resume.experience.length) sScore+=7;
+      if (resume.skills&&resume.skills.length) sScore+=4;
+      if (resume.education&&resume.education.length) sScore+=2;
+      return Math.min(97, Math.round(kwScore+vScore+mScore+sScore));
+    }
+
+    function buildResume(profile, job, prompts) {
+      const name = profile.name||'Your Name';
+      const yoe  = profile.workHistory&&profile.workHistory.length ? profile.workHistory.length*2 : 3;
+      const topSkills = (profile.skills||[]).slice(0,5).join(', ');
+      const summary = profile.summary ||
+        `Results-driven ${job.title||profile.headline||'professional'} with ${yoe}+ years of experience specialising in ${topSkills||'diverse domains'}. `+
+        `Proven track record of delivering measurable outcomes and contributing to organisational growth. `+
+        `Passionate about continuous improvement and thriving in collaborative, high-performance environments.`;
+      const experience = (profile.workHistory||[]).map(w => ({
+        ...w,
+        bullets: [...(w.bullets||[]).filter(b=>b.trim()),
+          ...(prompts.discoveries||[]).filter(d=>d.bullet).slice(0,1).map(d=>d.bullet)]
+      }));
+      return { name, email:profile.email||'', phone:profile.phone||'', linkedin:profile.linkedin||'', location:profile.location||'', summary, skills:profile.skills||[], experience, education:profile.education||[] };
+    }
+
+    function genDiscoveryQs(job, profile) {
+      const jdKws = extractKeywords(job.description||'');
+      const profTxt = JSON.stringify(profile).toLowerCase();
+      const gaps = jdKws.filter(k=>!profTxt.includes(k.toLowerCase())).slice(0,2);
+      const qs = [
+        { id:'ql', q:"Have you led or mentored team members — even informally or in a volunteer capacity?" },
+        { id:'qi', q:"What's your proudest professional achievement that isn't yet on your résumé?" },
+        { id:'qp', q:"Do you have relevant side projects, volunteer work, or freelance experience worth highlighting?" },
+        { id:'qc', q:"Have you recently completed any certifications, courses, or professional development?" },
+        { id:'qs', q:"Have you presented to senior stakeholders, clients, or at industry events?" },
+      ];
+      gaps.forEach((g,i) => qs.splice(i+1,0,{ id:`gap_${g}`, q:`Have you worked with "${g}" in any capacity — even informally or on personal projects?` }));
+      return qs.slice(0,6);
+    }
+
+    function getCerts(title) {
+      const words = (title||'').toLowerCase().split(/\W+/).filter(w=>w.length>2);
+      return CERT_DB.map(c=>({...c, score:c.kw.filter(k=>words.some(w=>k.includes(w)||w.includes(k))).length}))
+        .filter(c=>c.score>0).sort((a,b)=>b.score-a.score).slice(0,6);
+    }
+
+    function fmtResumeText(r) {
+      if (!r) return '';
+      let t = `${r.name}\n${[r.email,r.phone,r.linkedin,r.location].filter(Boolean).join(' | ')}\n\n`;
+      t += `PROFESSIONAL SUMMARY\n${r.summary}\n\n`;
+      if (r.skills&&r.skills.length) t += `KEY SKILLS\n${r.skills.join(', ')}\n\n`;
+      t += 'PROFESSIONAL EXPERIENCE\n';
+      (r.experience||[]).forEach(e => {
+        t += `\n${e.title||''} | ${e.company||''} | ${e.location||''} | ${e.startDate||''} – ${e.current?'Present':e.endDate||''}\n`;
+        (e.bullets||[]).forEach(b => { if(b.trim()) t += `• ${b}\n`; });
+      });
+      t += '\nEDUCATION\n';
+      (r.education||[]).forEach(e => { t += `${e.degree||''} | ${e.institution||''} | ${e.year||''}\n`; });
+      return t;
+    }
+
+    const newJob = () => ({ id:Date.now()+Math.random(), title:'', company:'', location:'', startDate:'', endDate:'', current:false, bullets:[''] });
+    const newEdu = () => ({ id:Date.now()+Math.random(), degree:'', institution:'', year:'' });
+
+    /* ════════════════════════════════════════════
+       ATS GAUGE
+    ════════════════════════════════════════════ */
+    function ATSGauge({ score }) {
+      const r=38, circ=2*Math.PI*r;
+      const offset=circ-(score/100)*circ;
+      const color = score>=85?'#22c55e': score>=70?'#ABC4FF': score>=50?'#fb923c': '#ef4444';
+      const label = score>=85?'Excellent': score>=70?'Good': score>=50?'Fair': 'Weak';
+      return (
+        <div style={{display:'flex',flexDirection:'column',alignItems:'center'}}>
+          <svg width="96" height="96" viewBox="0 0 90 90">
+            <circle cx="45" cy="45" r={r} fill="none" stroke="#E2EAFC" strokeWidth="7"/>
+            <circle cx="45" cy="45" r={r} fill="none" stroke={color} strokeWidth="7"
+              strokeDasharray={circ} strokeDashoffset={offset}
+              strokeLinecap="round" transform="rotate(-90 45 45)"
+              style={{transition:'stroke-dashoffset 1.4s ease'}}/>
+            <text x="45" y="43" textAnchor="middle" fontSize="19" fontWeight="800" fill="#1E1B4B" fontFamily="Manrope">{score}</text>
+            <text x="45" y="56" textAnchor="middle" fontSize="8" fill="#6B7280" fontFamily="Manrope">ATS SCORE</text>
+          </svg>
+          <span style={{fontSize:12,fontWeight:700,color,marginTop:2}}>{label}</span>
+        </div>
+      );
+    }
+
+    /* ════════════════════════════════════════════
+       HEADER
+    ════════════════════════════════════════════ */
+    function Header({ step, onBack }) {
+      const steps = ['Profile','Job','Customise','Builder','Search'];
+      return (
+        <header className="hdr">
+          <div className="logo">
+            <div className="logo-mark">E</div>
+            <span className="logo-name">Elev<em>ate</em></span>
+          </div>
+          {step > 0 && (
+            <div className="steps-bar">
+              {steps.map((s,i) => (
+                <React.Fragment key={s}>
+                  {i>0 && <div className={`step-line${i<=step-1?' done':''}`}/>}
+                  <div className={`step-pip ${i===step-1?'active':i<step-1?'done':'pending'}`}>
+                    {i<step-1?'✓':i+1}
+                  </div>
+                </React.Fragment>
+              ))}
+            </div>
+          )}
+          <div>
+            {step > 1 && (
+              <button className="hdr-back" onClick={onBack}>← Back</button>
+            )}
+            {step === 0 && (
+            <a href="guide.html" target="_blank" rel="noopener noreferrer"
+              style={{display:'inline-flex',alignItems:'center',gap:6,padding:'7px 14px',borderRadius:9,background:'var(--s1)',color:'var(--ink)',fontSize:13,fontWeight:600,textDecoration:'none',border:'1px solid var(--s3)'}}>
+              📖 How to Use
+            </a>
+          )}
+          </div>
+        </header>
+      );
+    }
+
+    /* ════════════════════════════════════════════
+       WELCOME SCREEN
+    ════════════════════════════════════════════ */
+    function Welcome({ onStart }) {
+      return (
+        <div className="fadein">
+          <div className="hero">
+            <div className="hero-pill">🎓 Harvard-Quality Resume Intelligence</div>
+            <h1 className="hero-h">Build a résumé that<br/>gets you <span className="hl">hired</span></h1>
+            <p className="hero-sub">
+              Import your LinkedIn profile, target your ideal role, and generate
+              an ATS-optimised résumé — in minutes.
+            </p>
+            <button className="btn btn-p btn-lg" onClick={onStart}>
+              Get Started →
+            </button>
+            <div className="feature-grid">
+              {[
+                { ico:'💼', t:'LinkedIn Import', d:'Import your work history directly or enter manually in minutes.' },
+                { ico:'🔍', t:'ATS Optimisation', d:'Keyword scoring ensures your résumé passes automated applicant tracking systems.' },
+                { ico:'💡', t:'Experience Discovery', d:'Our three-prompt system surfaces achievements you may have overlooked.' },
+                { ico:'🏆', t:'Certification Tips', d:'Role-specific cert recommendations to boost your earning potential.' },
+              ].map(f => (
+                <div className="feat-card" key={f.t}>
+                  <div className="feat-ico">{f.ico}</div>
+                  <div className="feat-t">{f.t}</div>
+                  <div className="feat-d">{f.d}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    /* ════════════════════════════════════════════
+       STEP 1 — IMPORT PROFILE
+    ════════════════════════════════════════════ */
+    function ImportProfile({ onDone }) {
+      const [tab, setTab] = useState('manual');
+      const [p, setP] = useState({ name:'', headline:'', email:'', phone:'', linkedin:'', location:'Sydney, NSW', summary:'', workHistory:[], education:[], skills:'' });
+
+      const setF = (k,v) => setP(prev=>({...prev,[k]:v}));
+
+      /* Work History */
+      const addJob = () => setP(prev=>({...prev, workHistory:[...prev.workHistory, newJob()]}));
+      const rmJob  = id => setP(prev=>({...prev, workHistory:prev.workHistory.filter(j=>j.id!==id)}));
+      const updJob = (id,k,v) => setP(prev=>({...prev, workHistory:prev.workHistory.map(j=>j.id===id?{...j,[k]:v}:j)}));
+      const addBullet = id => setP(prev=>({...prev, workHistory:prev.workHistory.map(j=>j.id===id?{...j,bullets:[...j.bullets,'']}:j)}));
+      const updBullet = (id,bi,v) => setP(prev=>({...prev, workHistory:prev.workHistory.map(j=>j.id===id?{...j,bullets:j.bullets.map((b,i)=>i===bi?v:b)}:j)}));
+      const rmBullet  = (id,bi) => setP(prev=>({...prev, workHistory:prev.workHistory.map(j=>j.id===id?{...j,bullets:j.bullets.filter((_,i)=>i!==bi)}:j)}));
+
+      /* Education */
+      const addEdu = () => setP(prev=>({...prev, education:[...prev.education, newEdu()]}));
+      const rmEdu  = id => setP(prev=>({...prev, education:prev.education.filter(e=>e.id!==id)}));
+      const updEdu = (id,k,v) => setP(prev=>({...prev, education:prev.education.map(e=>e.id===id?{...e,[k]:v}:e)}));
+
+      const handleDone = () => {
+        const profile = { ...p, skills: p.skills.split(',').map(s=>s.trim()).filter(Boolean) };
+        onDone(profile);
+      };
+      const valid = p.name.trim() && p.email.trim();
+
+      return (
+        <div className="fadein">
+          <h1 className="page-h">Your Profile</h1>
+          <p className="page-sub">Import from LinkedIn or enter your details manually. All information stays on your device.</p>
+
+          <div className="tab-bar mb4">
+            <button className={`tab-btn${tab==='linkedin'?' on':''}`} onClick={()=>setTab('linkedin')}>📎 LinkedIn Export</button>
+            <button className={`tab-btn${tab==='manual'?' on':''}`} onClick={()=>setTab('manual')}>✏️ Enter Manually</button>
+          </div>
+
+          {tab==='linkedin' && (
+            <div className="card fadein">
+              <div className="sec-label" style={{marginBottom:16}}>How to import your LinkedIn profile</div>
+              {[
+                { n:1, t:'Go to your LinkedIn profile', d:'Visit linkedin.com and open your profile page.' },
+                { n:2, t:'Save as PDF', d:'Click "More" → "Save to PDF" to download your profile.' },
+                { n:3, t:'Copy the text', d:'Open the PDF, select all text (Cmd+A), and copy it.' },
+                { n:4, t:'Paste below', d:'Paste the copied text into the field below and we\'ll extract your details.' },
+              ].map(s=>(
+                <div key={s.n} style={{display:'flex',gap:14,marginBottom:14,alignItems:'flex-start'}}>
+                  <div style={{width:28,height:28,borderRadius:'50%',background:'var(--a1)',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:700,fontSize:13,color:'var(--ink)',flexShrink:0}}>{s.n}</div>
+                  <div><div style={{fontWeight:700,color:'var(--ink)',fontSize:14,marginBottom:3}}>{s.t}</div><div style={{fontSize:13,color:'var(--muted)'}}>{s.d}</div></div>
+                </div>
+              ))}
+              <div className="field mt4">
+                <label className="lbl">Paste LinkedIn PDF text</label>
+                <textarea className="txa" rows={8} placeholder="Paste your LinkedIn profile text here..." style={{minHeight:160}}
+                  onChange={e => {
+                    const txt = e.target.value;
+                    const emailM = txt.match(/[\w.+-]+@[\w-]+\.[\w.]+/);
+                    const phoneM = txt.match(/(\+?\d[\d\s\-().]{7,15}\d)/);
+                    const nameM  = txt.trim().split('\n')[0];
+                    setP(prev=>({ ...prev,
+                      name: nameM||prev.name,
+                      email: emailM?emailM[0]:prev.email,
+                      phone: phoneM?phoneM[0]:prev.phone,
+                    }));
+                  }}
+                />
+              </div>
+              <p className="hint">After pasting, switch to "Enter Manually" to review and complete your details.</p>
+              <button className="btn btn-s mt4" onClick={()=>setTab('manual')}>Review & Edit Profile →</button>
+            </div>
+          )}
+
+          {tab==='manual' && (
+            <div className="fadein">
+              {/* Personal Info */}
+              <div className="card mb4">
+                <div className="sec-label mb3">Personal Information</div>
+                <div className="g2">
+                  <div className="field"><label className="lbl">Full Name *</label><input className="inp" placeholder="Jane Smith" value={p.name} onChange={e=>setF('name',e.target.value)}/></div>
+                  <div className="field"><label className="lbl">Professional Headline</label><input className="inp" placeholder="Senior Product Manager" value={p.headline} onChange={e=>setF('headline',e.target.value)}/></div>
+                </div>
+                <div className="g2">
+                  <div className="field"><label className="lbl">Email Address *</label><input className="inp" type="email" placeholder="jane@email.com.au" value={p.email} onChange={e=>setF('email',e.target.value)}/></div>
+                  <div className="field"><label className="lbl">Phone Number</label><input className="inp" placeholder="+61 4XX XXX XXX" value={p.phone} onChange={e=>setF('phone',e.target.value)}/></div>
+                </div>
+                <div className="g2">
+                  <div className="field"><label className="lbl">LinkedIn URL</label><input className="inp" placeholder="linkedin.com/in/janesmith" value={p.linkedin} onChange={e=>setF('linkedin',e.target.value)}/></div>
+                  <div className="field"><label className="lbl">Location</label>
+                    <select className="sel" value={p.location} onChange={e=>setF('location',e.target.value)}>
+                      {AU_CITIES.map(c=><option key={c}>{c}</option>)}
+                    </select>
+                  </div>
+                </div>
+                <div className="field"><label className="lbl">Professional Summary <span style={{fontWeight:400,color:'var(--muted)'}}>(optional — we'll generate one if blank)</span></label>
+                  <textarea className="txa" rows={3} placeholder="Brief overview of your career, expertise, and what you bring to a role..." value={p.summary} onChange={e=>setF('summary',e.target.value)}/>
+                </div>
+                <div className="field mb2"><label className="lbl">Key Skills <span style={{fontWeight:400,color:'var(--muted)'}}>— comma separated</span></label>
+                  <input className="inp" placeholder="Project Management, Stakeholder Engagement, Agile, Python, Data Analysis..." value={p.skills} onChange={e=>setF('skills',e.target.value)}/>
+                </div>
+              </div>
+
+              {/* Work History */}
+              <div className="card mb4">
+                <div className="row-between mb3">
+                  <div className="sec-label" style={{marginBottom:0}}>Work History</div>
+                  <button className="btn btn-s btn-sm" onClick={addJob}>+ Add Role</button>
+                </div>
+                {p.workHistory.length===0 && <div className="text-muted" style={{textAlign:'center',padding:'20px 0'}}>No roles added yet. Click "+ Add Role" to begin.</div>}
+                {p.workHistory.map((j,ji)=>(
+                  <div className="exp-block" key={j.id}>
+                    <div className="exp-row mb3">
+                      <div style={{fontWeight:700,color:'var(--ink)',fontSize:14}}>Role {ji+1}</div>
+                      <button className="btn btn-sm" style={{background:'none',border:'none',color:'var(--muted)',cursor:'pointer',fontSize:18,padding:'0 4px'}} onClick={()=>rmJob(j.id)}>×</button>
+                    </div>
+                    <div className="g2">
+                      <div className="field"><label className="lbl">Job Title</label><input className="inp" placeholder="Senior Software Engineer" value={j.title} onChange={e=>updJob(j.id,'title',e.target.value)}/></div>
+                      <div className="field"><label className="lbl">Company</label><input className="inp" placeholder="Atlassian" value={j.company} onChange={e=>updJob(j.id,'company',e.target.value)}/></div>
+                    </div>
+                    <div className="g2">
+                      <div className="field"><label className="lbl">Location</label><input className="inp" placeholder="Sydney, NSW" value={j.location} onChange={e=>updJob(j.id,'location',e.target.value)}/></div>
+                      <div className="field"><label className="lbl">Start Date</label><input className="inp" placeholder="Jan 2022" value={j.startDate} onChange={e=>updJob(j.id,'startDate',e.target.value)}/></div>
+                    </div>
+                    <div className="g2">
+                      <div className="field">
+                        <label className="lbl">End Date</label>
+                        <input className="inp" placeholder="Dec 2024" value={j.endDate} disabled={j.current} onChange={e=>updJob(j.id,'endDate',e.target.value)}/>
+                      </div>
+                      <div className="field" style={{display:'flex',alignItems:'flex-end',paddingBottom:2}}>
+                        <label style={{display:'flex',alignItems:'center',gap:8,cursor:'pointer',fontWeight:600,fontSize:13,color:'var(--ink)'}}>
+                          <input type="checkbox" checked={j.current} onChange={e=>updJob(j.id,'current',e.target.checked)} style={{width:16,height:16}}/>
+                          Currently working here
+                        </label>
+                      </div>
+                    </div>
+                    <div className="lbl mb2">Achievement Bullets <span style={{fontWeight:400,color:'var(--muted)'}}>— start with an action verb, add metrics</span></div>
+                    {j.bullets.map((b,bi)=>(
+                      <div className="bullet-row" key={bi}>
+                        <div className="bullet-dot"/>
+                        <input className="inp" style={{flex:1}} placeholder={bi===0?"e.g. Delivered $2M product launch, increasing user retention by 34%":"Add another achievement..."} value={b} onChange={e=>updBullet(j.id,bi,e.target.value)}/>
+                        {j.bullets.length>1 && <button style={{background:'none',border:'none',color:'var(--muted)',cursor:'pointer',fontSize:16,padding:'0 4px'}} onClick={()=>rmBullet(j.id,bi)}>×</button>}
+                      </div>
+                    ))}
+                    <button className="btn btn-g btn-sm mt2" onClick={()=>addBullet(j.id)}>+ Add Bullet</button>
+                  </div>
+                ))}
+              </div>
+
+              {/* Education */}
+              <div className="card mb6">
+                <div className="row-between mb3">
+                  <div className="sec-label" style={{marginBottom:0}}>Education</div>
+                  <button className="btn btn-s btn-sm" onClick={addEdu}>+ Add Education</button>
+                </div>
+                {p.education.length===0 && <div className="text-muted" style={{textAlign:'center',padding:'16px 0'}}>No education added yet.</div>}
+                {p.education.map(e=>(
+                  <div className="exp-block" key={e.id}>
+                    <div className="exp-row mb3">
+                      <div style={{fontWeight:700,fontSize:14,color:'var(--ink)'}}>Education Entry</div>
+                      <button style={{background:'none',border:'none',color:'var(--muted)',cursor:'pointer',fontSize:18,padding:'0 4px'}} onClick={()=>rmEdu(e.id)}>×</button>
+                    </div>
+                    <div className="g2">
+                      <div className="field"><label className="lbl">Degree / Qualification</label><input className="inp" placeholder="Bachelor of Commerce" value={e.degree} onChange={v=>updEdu(e.id,'degree',v.target.value)}/></div>
+                      <div className="field"><label className="lbl">Institution</label><input className="inp" placeholder="University of Sydney" value={e.institution} onChange={v=>updEdu(e.id,'institution',v.target.value)}/></div>
+                    </div>
+                    <div className="g2">
+                      <div className="field"><label className="lbl">Year Completed</label><input className="inp" placeholder="2020" value={e.year} onChange={v=>updEdu(e.id,'year',v.target.value)}/></div>
+                      <div className="field"><label className="lbl">Grade / Honours</label><input className="inp" placeholder="First Class Honours" value={e.grade||''} onChange={v=>updEdu(e.id,'grade',v.target.value)}/></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{display:'flex',justifyContent:'flex-end'}}>
+                <button className="btn btn-p btn-lg" onClick={handleDone} disabled={!valid}>
+                  Continue to Job Target →
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    /* ════════════════════════════════════════════
+       STEP 2 — JOB TARGET
+    ════════════════════════════════════════════ */
+    function JobTarget({ onDone }) {
+      const [j, setJ] = useState({ title:'', company:'', location:'Sydney, NSW', industry:'Technology', description:'' });
+      const setF = (k,v) => setJ(prev=>({...prev,[k]:v}));
+      const valid = j.title.trim();
+
+      return (
+        <div className="fadein">
+          <h1 className="page-h">Target Role</h1>
+          <p className="page-sub">Tell us about the role you're applying for. Paste the job description for the best ATS results.</p>
+          <div className="card">
+            <div className="g2">
+              <div className="field"><label className="lbl">Target Job Title *</label><input className="inp" placeholder="Senior Product Manager" value={j.title} onChange={e=>setF('title',e.target.value)}/></div>
+              <div className="field"><label className="lbl">Company Name <span style={{fontWeight:400,color:'var(--muted)'}}>(optional)</span></label><input className="inp" placeholder="Canva, ANZ, etc." value={j.company} onChange={e=>setF('company',e.target.value)}/></div>
+            </div>
+            <div className="g2">
+              <div className="field"><label className="lbl">Location</label>
+                <select className="sel" value={j.location} onChange={e=>setF('location',e.target.value)}>
+                  {AU_CITIES.map(c=><option key={c}>{c}</option>)}
+                </select>
+              </div>
+              <div className="field"><label className="lbl">Industry</label>
+                <select className="sel" value={j.industry} onChange={e=>setF('industry',e.target.value)}>
+                  {INDUSTRIES.map(i=><option key={i}>{i}</option>)}
+                </select>
+              </div>
+            </div>
+            <div className="field">
+              <label className="lbl">Job Description <span style={{fontWeight:400,color:'var(--muted)'}}>— paste the full JD for maximum ATS optimisation</span></label>
+              <textarea className="txa" rows={10} style={{minHeight:200}} placeholder="Paste the full job description here. Our system will extract ATS keywords, identify key requirements, and tailor your résumé accordingly..." value={j.description} onChange={e=>setF('description',e.target.value)}/>
+              {j.description.length>50 && (
+                <div style={{display:'flex',alignItems:'center',gap:8,marginTop:8}}>
+                  <span style={{fontSize:12,color:'var(--muted)'}}>📊</span>
+                  <span style={{fontSize:12,color:'var(--muted)'}}>{extractKeywords(j.description).length} keywords detected — great for ATS optimisation</span>
+                </div>
+              )}
+            </div>
+            <div style={{display:'flex',justifyContent:'flex-end'}}>
+              <button className="btn btn-p btn-lg" disabled={!valid} onClick={()=>onDone({...j, keywords:extractKeywords(j.description)})}>
+                Analyse Role →
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    /* ════════════════════════════════════════════
+       STEP 3a — RESEARCH PROMPT
+    ════════════════════════════════════════════ */
+    function ResearchPrompt({ job, onDone }) {
+      const kws = extractKeywords(job.description);
+      const [sel, setSel] = useState(kws);
+      const toggle = k => setSel(prev=>prev.includes(k)?prev.filter(x=>x!==k):[...prev,k]);
+
+      const successFactors = [
+        `Strong alignment with ${job.industry} industry standards and best practices`,
+        `Clear demonstration of measurable outcomes and quantified achievements`,
+        `Evidence of stakeholder management and cross-functional collaboration`,
+        `Proficiency in core ${job.title||'role'} competencies and technical tools`,
+        `Track record of continuous learning and professional development`,
+      ];
+
+      return (
+        <div className="fadein">
+          <div className="prompt-prog">
+            <div className="pp-num active">1</div><span className="pp-lbl active">Research</span>
+            <div className="pp-sep"/><div className="pp-num pending">2</div><span className="pp-lbl">Template</span>
+            <div className="pp-sep"/><div className="pp-num pending">3</div><span className="pp-lbl">Discovery</span>
+          </div>
+
+          <h1 className="page-h">Role Research</h1>
+          <p className="page-sub">Based on the job description analysis, here's what makes candidates successful in this role. Select the keywords to include in your résumé.</p>
+
+          <div className="card mb4">
+            <div className="sec-label mb3">ATS Keywords — click to include / exclude</div>
+            {kws.length>0 ? (
+              <div className="chip-wrap">
+                {kws.map(k=>(
+                  <div key={k} className={`chip${sel.includes(k)?' on':''}`} onClick={()=>toggle(k)}>
+                    {sel.includes(k)?'✓ ':''}{k}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-muted">Paste a job description in Step 2 for keyword analysis. We'll still generate a strong résumé.</p>
+            )}
+            <p className="hint mt2">{sel.length} of {kws.length} keywords selected — these will be woven into your résumé.</p>
+          </div>
+
+          <div className="card mb6">
+            <div className="sec-label mb3">Success Factors for {job.title||'This Role'}</div>
+            {successFactors.map((f,i)=>(
+              <div className="sf-row" key={i}>
+                <span className="sf-ico">✦</span>
+                <span style={{fontSize:14,color:'var(--body)'}}>{f}</span>
+              </div>
+            ))}
+            {job.company && (
+              <div className="sf-row" key="co">
+                <span className="sf-ico">🏢</span>
+                <span style={{fontSize:14,color:'var(--body)'}}>Targeting <strong>{job.company}</strong> — research their values, recent news, and products before your interview.</span>
+              </div>
+            )}
+          </div>
+
+          <div style={{display:'flex',justifyContent:'flex-end'}}>
+            <button className="btn btn-p btn-lg" onClick={()=>onDone(sel)}>Confirm & Choose Template →</button>
+          </div>
+        </div>
+      );
+    }
+
+    /* ════════════════════════════════════════════
+       STEP 3b — TEMPLATE PROMPT
+    ════════════════════════════════════════════ */
+    function TemplatePrompt({ job, onDone }) {
+      const [tpl, setTpl]     = useState('chronological');
+      const [twoPage, setTwo] = useState(false);
+
+      const templates = [
+        { id:'chronological', ico:'📅', name:'Chronological', desc:'Most recent experience first. Best for steady career progression and most ATS systems. Recommended for 90% of roles.' },
+        { id:'hybrid', ico:'⚡', name:'Hybrid', desc:'Skills summary upfront, then chronological experience. Ideal for career changers or roles requiring specific technical skills.' },
+        { id:'targeted', ico:'🎯', name:'Targeted', desc:'Tightly aligned to the specific job description. Every section speaks directly to the role requirements.' },
+      ];
+
+      return (
+        <div className="fadein">
+          <div className="prompt-prog">
+            <div className="pp-num done">✓</div><span className="pp-lbl">Research</span>
+            <div className="pp-sep done"/><div className="pp-num active">2</div><span className="pp-lbl active">Template</span>
+            <div className="pp-sep"/><div className="pp-num pending">3</div><span className="pp-lbl">Discovery</span>
+          </div>
+
+          <h1 className="page-h">Resume Structure</h1>
+          <p className="page-sub">Choose the format that best presents your experience for the <strong>{job.title||'target role'}</strong>. You can edit it after generation.</p>
+
+          <div className="g3 mb4">
+            {templates.map(t=>(
+              <div key={t.id} className={`tpl-card${tpl===t.id?' on':''}`} onClick={()=>setTpl(t.id)}>
+                <div className="tpl-ico">{t.ico}</div>
+                <div className="tpl-name">{t.name}</div>
+                <div className="tpl-desc">{t.desc}</div>
+                {tpl===t.id && <div style={{marginTop:10,fontSize:12,fontWeight:700,color:'var(--accent)'}}>✓ Selected</div>}
+              </div>
+            ))}
+          </div>
+
+          <div className="card mb6">
+            <div className="sec-label mb3">Additional Options</div>
+            <label style={{display:'flex',alignItems:'center',gap:12,cursor:'pointer',padding:'12px 0',borderBottom:'1px solid var(--s1)'}}>
+              <input type="checkbox" checked={twoPage} onChange={e=>setTwo(e.target.checked)} style={{width:18,height:18}}/>
+              <div>
+                <div style={{fontWeight:700,fontSize:14,color:'var(--ink)'}}>Two-page résumé</div>
+                <div style={{fontSize:12,color:'var(--muted)'}}>Recommended if you have 8+ years of experience or extensive publications/projects.</div>
+              </div>
+            </label>
+            <div style={{padding:'12px 0',fontSize:13,color:'var(--muted)'}}>
+              <strong style={{color:'var(--ink)'}}>🇦🇺 Australian English</strong> will be applied throughout — colour, organise, programme, analyse, and more.
+            </div>
+          </div>
+
+          <div style={{display:'flex',justifyContent:'flex-end'}}>
+            <button className="btn btn-p btn-lg" onClick={()=>onDone({template:tpl, twoPage})}>Confirm & Discover Experience →</button>
+          </div>
+        </div>
+      );
+    }
+
+    /* ════════════════════════════════════════════
+       STEP 3c — DISCOVERY PROMPT
+    ════════════════════════════════════════════ */
+    function DiscoveryPrompt({ job, profile, onDone }) {
+      const questions = genDiscoveryQs(job, profile);
+      const [cur, setCur]       = useState(0);
+      const [expanding, setExp] = useState(false);
+      const [details, setDet]   = useState('');
+      const [captured, setCap]  = useState([]);
+
+      const saveAndNext = (text) => {
+        if (text.trim()) {
+          setCap(prev=>[...prev, { q:questions[cur].q, bullet:text.trim() }]);
+        }
+        setExp(false); setDet('');
+        if (cur+1 < questions.length) setCur(c=>c+1);
+        else onDone(captured.concat(text.trim()?[{q:questions[cur].q,bullet:text.trim()}]:[]));
+      };
+
+      if (cur >= questions.length) {
+        onDone(captured);
+        return null;
+      }
+
+      return (
+        <div className="fadein">
+          <div className="prompt-prog">
+            <div className="pp-num done">✓</div><span className="pp-lbl">Research</span>
+            <div className="pp-sep done"/><div className="pp-num done">✓</div><span className="pp-lbl">Template</span>
+            <div className="pp-sep done"/><div className="pp-num active">3</div><span className="pp-lbl active">Discovery</span>
+          </div>
+
+          <h1 className="page-h">Experience Discovery</h1>
+          <p className="page-sub">We'll ask a few quick questions to surface achievements you may not have documented yet. These can significantly strengthen your résumé.</p>
+
+          <div className="disc-card mb4">
+            <div className="disc-progress">
+              {questions.map((_,i)=><div key={i} className={`disc-pip${i<=cur?' on':''}`}/>)}
+            </div>
+            <div style={{fontSize:12,color:'var(--muted)',marginBottom:20}}>Question {cur+1} of {questions.length}</div>
+            <div className="disc-q">{questions[cur].q}</div>
+
+            {!expanding ? (
+              <div className="disc-btns">
+                <button className="disc-yes" onClick={()=>setExp(true)}>Yes — tell me more</button>
+                <button className="disc-more" onClick={()=>saveAndNext('')}>Maybe — skip for now</button>
+                <button className="disc-no" onClick={()=>saveAndNext('')}>No</button>
+              </div>
+            ) : (
+              <div className="fadein" style={{textAlign:'left'}}>
+                <label className="lbl mb2" style={{display:'block',marginBottom:6}}>Describe the experience — we'll help turn it into a résumé bullet</label>
+                <textarea className="txa" rows={4} placeholder="e.g. Led a team of 5 engineers to migrate our monolith to microservices, reducing deployment time by 60%..." value={details} onChange={e=>setDet(e.target.value)} style={{marginBottom:12}}/>
+                <div style={{display:'flex',gap:10,justifyContent:'flex-end'}}>
+                  <button className="btn btn-g btn-sm" onClick={()=>{ setExp(false); setDet(''); saveAndNext(''); }}>Skip</button>
+                  <button className="btn btn-p btn-sm" onClick={()=>saveAndNext(details)}>Save & Continue →</button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {captured.length>0 && (
+            <div className="card fadein">
+              <div className="sec-label mb3">Captured Experiences ({captured.length})</div>
+              {captured.map((c,i)=>(
+                <div className="cap-item" key={i}>
+                  <span className="cap-ico">✦</span>
+                  <span className="cap-text">{c.bullet}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div style={{display:'flex',justifyContent:'flex-end',marginTop:20}}>
+            <button className="btn btn-g btn-sm" onClick={()=>onDone(captured)}>Skip remaining questions →</button>
+          </div>
+        </div>
+      );
+    }
+
+    /* ════════════════════════════════════════════
+       STEP 3 — CUSTOMISE WRAPPER
+    ════════════════════════════════════════════ */
+    function Customise({ profile, job, onDone }) {
+      const [sub, setSub]        = useState(0);
+      const [kws, setKws]        = useState([]);
+      const [tplData, setTpl]    = useState({});
+      const [discoveries, setDis]= useState([]);
+
+      if (sub===0) return <ResearchPrompt job={job} onDone={k=>{ setKws(k); setSub(1); }}/>;
+      if (sub===1) return <TemplatePrompt job={job} onDone={t=>{ setTpl(t); setSub(2); }}/>;
+      if (sub===2) return <DiscoveryPrompt job={job} profile={profile} onDone={d=>{ setDis(d); onDone({keywords:kws, ...tplData, discoveries:d}); }}/>;
+      return null;
+    }
+
+    /* ════════════════════════════════════════════
+       RESUME PREVIEW
+    ════════════════════════════════════════════ */
+    function ResumePreview({ resume }) {
+      if (!resume) return null;
+      return (
+        <div className="resume-doc">
+          <div className="r-name">{resume.name||'Your Name'}</div>
+          <div className="r-contact">
+            {resume.email && <span>{resume.email}</span>}
+            {resume.phone && <span>{resume.phone}</span>}
+            {resume.linkedin && <span>{resume.linkedin}</span>}
+            {resume.location && <span>{resume.location}</span>}
+          </div>
+          <div className="r-divider"/>
+
+          {resume.summary && <>
+            <div className="r-stitle">Professional Summary</div>
+            <div className="r-summary">{resume.summary}</div>
+          </>}
+
+          {resume.skills&&resume.skills.length>0 && <>
+            <div className="r-stitle">Key Skills</div>
+            <div className="r-skills-row" style={{marginBottom:14}}>
+              <div className="r-skill-group">{resume.skills.join(' • ')}</div>
+            </div>
+          </>}
+
+          {resume.experience&&resume.experience.length>0 && <>
+            <div className="r-stitle">Professional Experience</div>
+            {resume.experience.map((e,i)=>(
+              <div key={i}>
+                <div className="r-exp-title">{e.title||'Role Title'}</div>
+                <div className="r-exp-meta">
+                  {[e.company,e.location,e.startDate&&`${e.startDate} – ${e.current?'Present':e.endDate||''}`].filter(Boolean).join(' | ')}
+                </div>
+                {e.bullets&&e.bullets.filter(b=>b.trim()).length>0 && (
+                  <ul className="r-bullets">
+                    {e.bullets.filter(b=>b.trim()).map((b,bi)=><li key={bi}>{b}</li>)}
+                  </ul>
+                )}
+              </div>
+            ))}
+          </>}
+
+          {resume.education&&resume.education.length>0 && <>
+            <div className="r-stitle">Education</div>
+            {resume.education.map((e,i)=>(
+              <div className="r-edu" key={i}>
+                <div className="r-edu-deg">{e.degree||'Degree'}</div>
+                <div className="r-edu-info">{[e.institution,e.year,e.grade].filter(Boolean).join(' | ')}</div>
+              </div>
+            ))}
+          </>}
+        </div>
+      );
+    }
+
+    /* ════════════════════════════════════════════
+       STEP 4 — BUILDER
+    ════════════════════════════════════════════ */
+    function Builder({ profile, job, prompts, onDone }) {
+      const [resume, setRes] = useState(()=>buildResume(profile,job,prompts));
+      const [tab, setTab]    = useState('summary');
+      const [copied, setCopied] = useState(false);
+      const score = calcATS(resume, prompts.keywords||[]);
+
+      const setF = (k,v) => setRes(prev=>({...prev,[k]:v}));
+
+      const updExp = (i,k,v) => setRes(prev=>({...prev, experience:prev.experience.map((e,ei)=>ei===i?{...e,[k]:v}:e)}));
+      const updBullet = (ei,bi,v) => setRes(prev=>({...prev, experience:prev.experience.map((e,i)=>i===ei?{...e,bullets:e.bullets.map((b,j)=>j===bi?v:b)}:e)}));
+      const addBullet = ei => setRes(prev=>({...prev, experience:prev.experience.map((e,i)=>i===ei?{...e,bullets:[...e.bullets,'']}:e)}));
+
+      const copyText = async() => {
+        await navigator.clipboard.writeText(fmtResumeText(resume));
+        setCopied(true); setTimeout(()=>setCopied(false),2500);
+      };
+
+      const bars = [
+        { label:'Keywords', val: prompts.keywords&&prompts.keywords.length ? Math.round((prompts.keywords.filter(k=>JSON.stringify(resume).toLowerCase().includes(k)).length/prompts.keywords.length)*100) : 70 },
+        { label:'Action Verbs', val: Math.min(100,['achieved','delivered','led','managed','developed','implemented','improved','increased','reduced','created','launched','built','designed','established','streamlined'].filter(v=>JSON.stringify(resume).toLowerCase().includes(v)).length*14) },
+        { label:'Metrics', val: /\d+%|\$\d+|\d+\s*(million|thousand|k\b|people|clients)/i.test(JSON.stringify(resume)) ? 90 : 40 },
+        { label:'Completeness', val: [resume.summary,resume.experience&&resume.experience.length,(resume.skills||[]).length,resume.education&&resume.education.length].filter(Boolean).length*25 },
+      ];
+
+      return (
+        <div className="fadein">
+          <div className="row-between mb4">
+            <div>
+              <h1 className="page-h" style={{marginBottom:4}}>Résumé Builder</h1>
+              <p style={{fontSize:14,color:'var(--muted)'}}>Edit your résumé on the left — the preview updates live. ATS score reflects keyword and structure quality.</p>
+            </div>
+            <button className="btn btn-p" onClick={()=>onDone(resume)}>Find Jobs & Certs →</button>
+          </div>
+
+          <div className="builder-wrap">
+            {/* EDITOR */}
+            <div className="editor-col">
+              <div className="sec-tabs">
+                {['summary','experience','skills','education'].map(t=>(
+                  <button key={t} className={`stab${tab===t?' on':''}`} onClick={()=>setTab(t)}>
+                    {t.charAt(0).toUpperCase()+t.slice(1)}
+                  </button>
+                ))}
+              </div>
+
+              {tab==='summary' && (
+                <div className="card fadein">
+                  <div className="sec-label mb3">Professional Summary</div>
+                  <div className="field">
+                    <label className="lbl">Summary</label>
+                    <textarea className="txa" rows={5} value={resume.summary} onChange={e=>setF('summary',e.target.value)}/>
+                    <p className="hint">2–3 sentences. Lead with your title and years of experience. Include 2–3 key ATS terms.</p>
+                  </div>
+                  <div className="g2">
+                    <div className="field"><label className="lbl">Full Name</label><input className="inp" value={resume.name} onChange={e=>setF('name',e.target.value)}/></div>
+                    <div className="field"><label className="lbl">Email</label><input className="inp" value={resume.email} onChange={e=>setF('email',e.target.value)}/></div>
+                  </div>
+                  <div className="g2">
+                    <div className="field"><label className="lbl">Phone</label><input className="inp" value={resume.phone} onChange={e=>setF('phone',e.target.value)}/></div>
+                    <div className="field"><label className="lbl">LinkedIn</label><input className="inp" value={resume.linkedin} onChange={e=>setF('linkedin',e.target.value)}/></div>
+                  </div>
+                </div>
+              )}
+
+              {tab==='experience' && (
+                <div className="fadein">
+                  {(resume.experience||[]).length===0 && <div className="card" style={{textAlign:'center',padding:'32px',color:'var(--muted)'}}>No work history added. Go back to Step 1 to add your experience.</div>}
+                  {(resume.experience||[]).map((e,ei)=>(
+                    <div className="card mb3" key={ei}>
+                      <div className="g2">
+                        <div className="field"><label className="lbl">Job Title</label><input className="inp" value={e.title||''} onChange={v=>updExp(ei,'title',v.target.value)}/></div>
+                        <div className="field"><label className="lbl">Company</label><input className="inp" value={e.company||''} onChange={v=>updExp(ei,'company',v.target.value)}/></div>
+                      </div>
+                      <div className="sec-label mb2">Achievement Bullets</div>
+                      {(e.bullets||[]).map((b,bi)=>(
+                        <div className="bullet-row" key={bi}>
+                          <div className="bullet-dot"/>
+                          <input className="inp" style={{flex:1}} value={b} onChange={v=>updBullet(ei,bi,v.target.value)}/>
+                        </div>
+                      ))}
+                      <button className="btn btn-g btn-sm mt2" onClick={()=>addBullet(ei)}>+ Add Bullet</button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {tab==='skills' && (
+                <div className="card fadein">
+                  <div className="sec-label mb3">Skills</div>
+                  <p className="text-sm mb3" style={{color:'var(--muted)'}}>These appear as a concise list on your résumé. Include technical skills, tools, methodologies, and soft skills relevant to the role.</p>
+                  {(resume.skills||[]).map((s,i)=>(
+                    <div className="bullet-row" key={i}>
+                      <div className="bullet-dot"/>
+                      <input className="inp" style={{flex:1}} value={s} onChange={e=>setF('skills',resume.skills.map((sk,si)=>si===i?e.target.value:sk))}/>
+                      <button style={{background:'none',border:'none',color:'var(--muted)',cursor:'pointer',fontSize:16,padding:'0 4px'}} onClick={()=>setF('skills',resume.skills.filter((_,si)=>si!==i))}>×</button>
+                    </div>
+                  ))}
+                  <button className="btn btn-g btn-sm mt2" onClick={()=>setF('skills',[...(resume.skills||[]),''])}>+ Add Skill</button>
+                </div>
+              )}
+
+              {tab==='education' && (
+                <div className="card fadein">
+                  <div className="sec-label mb3">Education</div>
+                  {(resume.education||[]).length===0 && <div style={{color:'var(--muted)',fontSize:13,padding:'16px 0'}}>No education added. Go back to Step 1 to add your qualifications.</div>}
+                  {(resume.education||[]).map((e,i)=>(
+                    <div className="exp-block" key={i}>
+                      <div className="g2 mb2">
+                        <div className="field"><label className="lbl">Degree</label><input className="inp" value={e.degree||''} onChange={v=>setF('education',resume.education.map((ed,ei)=>ei===i?{...ed,degree:v.target.value}:ed))}/></div>
+                        <div className="field"><label className="lbl">Institution</label><input className="inp" value={e.institution||''} onChange={v=>setF('education',resume.education.map((ed,ei)=>ei===i?{...ed,institution:v.target.value}:ed))}/></div>
+                      </div>
+                      <div className="field"><label className="lbl">Year</label><input className="inp" value={e.year||''} style={{maxWidth:120}} onChange={v=>setF('education',resume.education.map((ed,ei)=>ei===i?{...ed,year:v.target.value}:ed))}/></div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* PREVIEW */}
+            <div className="preview-col">
+              <div className="ats-widget">
+                <ATSGauge score={score}/>
+                <div className="ats-bars">
+                  <div className="ats-bar-label sec-label" style={{marginBottom:6,fontSize:11}}>Score Breakdown</div>
+                  {bars.map(b=>(
+                    <div className="ats-bar-row" key={b.label}>
+                      <span className="ats-bar-label">{b.label}</span>
+                      <div className="ats-trk"><div className="ats-fill" style={{width:`${b.val}%`}}/></div>
+                      <span style={{fontSize:11,fontWeight:600,color:'var(--ink)',width:30,textAlign:'right'}}>{b.val}%</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <ResumePreview resume={resume}/>
+
+              <div className="export-row">
+                <button className="btn btn-p btn-sm" onClick={()=>window.print()}>🖨 Print / Save PDF</button>
+                <button className="btn btn-s btn-sm" onClick={copyText}>{copied?'✓ Copied!':'📋 Copy Text'}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    /* ════════════════════════════════════════════
+       STEP 5 — JOB SEARCH + CERTS
+    ════════════════════════════════════════════ */
+    function Search({ job, resume }) {
+      const certs = getCerts(job.title||'');
+      const fallbackCerts = CERT_DB.slice(0,6);
+      const showCerts = certs.length>0 ? certs : fallbackCerts;
+
+      return (
+        <div className="fadein">
+          <h1 className="page-h">Find Jobs & Boost Your Career</h1>
+          <p className="page-sub">Your résumé is ready. Now find relevant roles on Australia's top job boards and explore certifications that can significantly increase your earning potential.</p>
+
+          <div className="sec-label mb3">🔍 Search for {job.title||'Your Role'} in {job.location||'Australia'}</div>
+          <div className="jb-grid mb6">
+            {JOB_BOARDS.map(b=>(
+              <div className="jb-card" key={b.name}>
+                <div className="jb-top">
+                  <div className="jb-logo">{b.emoji}</div>
+                  <div>
+                    <div className="jb-name">{b.name}</div>
+                    <div className="jb-desc">{b.desc}</div>
+                  </div>
+                </div>
+                <a href={b.url(job.title||'',job.location||'Australia')} target="_blank" rel="noopener noreferrer"
+                  className="btn btn-p btn-sm" style={{width:'100%',textDecoration:'none',display:'flex',justifyContent:'center'}}>
+                  Search {job.title ? `"${job.title}"` : 'Jobs'} →
+                </a>
+              </div>
+            ))}
+          </div>
+
+          <div className="divider"/>
+
+          <div className="row-between mb3">
+            <div className="sec-label" style={{marginBottom:0}}>🏆 Recommended Certifications</div>
+            <span style={{fontSize:12,color:'var(--muted)'}}>Ranked by relevance to {job.title||'your role'} — online, verifiable, high income impact</span>
+          </div>
+          <div className="cert-grid">
+            {showCerts.map((c,i)=>(
+              <div className="cert-card" key={i}>
+                <div className="cert-hdr">
+                  <div className="cert-name">{c.name}</div>
+                  <div className="cert-boost">{c.boost}</div>
+                </div>
+                <div className="cert-prov">📚 {c.provider}</div>
+                <div className="cert-meta">
+                  <span>⏱ {c.dur}</span>
+                  <span>💰 {c.cost}</span>
+                </div>
+                <a href={c.link} target="_blank" rel="noopener noreferrer"
+                  className="btn btn-p btn-sm" style={{textDecoration:'none',display:'inline-flex'}}>
+                  Learn More →
+                </a>
+              </div>
+            ))}
+          </div>
+
+          <div className="card mt6" style={{background:'var(--s1)'}}>
+            <div className="sec-label mb2">💡 Application Tips</div>
+            <ul style={{paddingLeft:18,color:'var(--body)',fontSize:14,lineHeight:2}}>
+              <li>Customise your résumé cover letter for each application — reference the company by name.</li>
+              <li>Apply within 48 hours of a job posting — response rates drop significantly after 72 hours.</li>
+              <li>Follow up with a connection request on LinkedIn after applying.</li>
+              <li>Use <strong>SEEK Salary Insights</strong> to benchmark your asking salary before interviews.</li>
+              <li>Australian résumés typically do <strong>not</strong> include a photo, date of birth, or marital status.</li>
+            </ul>
+          </div>
+        </div>
+      );
+    }
+
+    /* ════════════════════════════════════════════
+       APP ROOT
+    ════════════════════════════════════════════ */
+    function App() {
+      const [step, setStep]       = useState(0);
+      const [profile, setProfile] = useState({ name:'', headline:'', email:'', phone:'', linkedin:'', location:'Sydney, NSW', summary:'', workHistory:[], education:[], skills:[] });
+      const [job, setJob]         = useState({ title:'', company:'', location:'Sydney, NSW', industry:'Technology', description:'', keywords:[] });
+      const [prompts, setPrompts] = useState({ keywords:[], template:'chronological', twoPage:false, discoveries:[] });
+      const [resume, setResume]   = useState(null);
+
+      const goBack = () => setStep(s=>Math.max(0,s-1));
+
+      return (
+        <div>
+          <Header step={step} onBack={goBack}/>
+          <div className="main">
+            {step===0 && <Welcome onStart={()=>setStep(1)}/>}
+            {step===1 && <ImportProfile onDone={p=>{ setProfile(p); setStep(2); }}/>}
+            {step===2 && <JobTarget onDone={j=>{ setJob(j); setStep(3); }}/>}
+            {step===3 && <Customise profile={profile} job={job} onDone={pr=>{ setPrompts(pr); setStep(4); }}/>}
+            {step===4 && <Builder profile={profile} job={job} prompts={prompts} onDone={r=>{ setResume(r); setStep(5); }}/>}
+            {step===5 && <Search job={job} resume={resume}/>}
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+  </script>
+</body>
+</html>

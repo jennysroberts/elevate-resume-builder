@@ -1,0 +1,32 @@
+{
+  "name": "elevate-resume-builder",
+  "version": "1.0.0",
+  "description": "A professional, ATS-optimised résumé builder for the Australian job market. Zero dependencies — runs entirely in the browser.",
+  "homepage": "https://github.com/jenny/elevate-resume-builder",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jenny/elevate-resume-builder.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jenny/elevate-resume-builder/issues"
+  },
+  "author": "jenny",
+  "license": "MIT",
+  "keywords": [
+    "resume",
+    "resume-builder",
+    "ats",
+    "australian",
+    "job-search",
+    "career",
+    "cv",
+    "linkedin"
+  ],
+  "scripts": {
+    "start": "python3 -m http.server 3571",
+    "dev": "python3 -m http.server 3571"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
